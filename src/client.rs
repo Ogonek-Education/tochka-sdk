@@ -1,4 +1,4 @@
-use crate::{ApiVersion, Error, Scope, Service};
+use crate::{ApiVersion, Error, Service};
 use std::time::Duration;
 
 pub const PRODUCTION_BASE: &str = "https://enter.tochka.com/uapi/";
@@ -19,7 +19,7 @@ impl Environment {
 }
 
 pub struct Client {
-    client: reqwest::Client,
+    pub client: reqwest::Client,
     env: Environment,
     token: String,
 }
@@ -59,7 +59,7 @@ impl Client {
 }
 
 impl Client {
-    async fn send<T>(&self, req: reqwest::RequestBuilder) -> Result<T, Error>
+    pub async fn send<T>(&self, req: reqwest::RequestBuilder) -> Result<T, Error>
     where
         T: serde::de::DeserializeOwned,
     {
@@ -72,6 +72,7 @@ impl Client {
         })?;
 
         let status = resp.status();
+        let body = resp.text().await.unwrap_or_default(); // always capture raw JSON
 
         match status {
             reqwest::StatusCode::UNAUTHORIZED => return Err(Error::Unauthorized),
@@ -79,19 +80,30 @@ impl Client {
             reqwest::StatusCode::NOT_FOUND => return Err(Error::NotFound),
             reqwest::StatusCode::TOO_MANY_REQUESTS => return Err(Error::TooManyRequests),
             code if code.is_server_error() => {
-                let body = resp.text().await.unwrap_or_default();
                 return Err(Error::Server(body));
             }
             _ => {}
         }
 
         if !status.is_success() {
-            let text = resp.text().await.unwrap_or_default();
-            return Err(Error::Api(text));
+            return Err(Error::Api(body));
         }
 
-        resp.json()
-            .await
-            .map_err(|e| Error::Deserialize(e.to_string()))
+        // ------- Enhanced Deserialization --------
+        let mut deserializer = serde_json::Deserializer::from_str(&body);
+
+        match serde_path_to_error::deserialize::<_, T>(&mut deserializer) {
+            Ok(result) => Ok(result),
+            Err(err) => {
+                let path = err.path().to_string();
+                let inner = err.into_inner();
+
+                Err(Error::Deserialize {
+                    message: inner.to_string(),
+                    path,
+                    raw: body,
+                })
+            }
+        }
     }
 }

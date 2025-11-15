@@ -7,5 +7,4 @@ mod types;
 pub use client::*;
 pub use error::*;
 pub use helpers::*;
-pub use methods::*;
 pub use types::*;

@@ -25,7 +25,7 @@ pub enum PaymentStatus {
 }
 
 /// Как клиент платит – способ оплаты
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum PaymentMode {
     Sbp,
@@ -35,7 +35,7 @@ pub enum PaymentMode {
 }
 
 /// Признак предмета платежа
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum PaymentObject {
     Goods,

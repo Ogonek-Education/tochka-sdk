@@ -1,39 +1,38 @@
-use thiserror::Error;
-
-#[derive(Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("Configuration Error: {0}")]
+    #[error("configuration error: {0}")]
     Config(String),
 
-    #[error("Network Error: {0}")]
-    Network(String),
-
-    #[error("Timeout")]
+    #[error("timeout")]
     Timeout,
 
-    #[error("Unauthorized")]
+    #[error("network error: {0}")]
+    Network(String),
+
+    #[error("unauthorized")]
     Unauthorized,
 
-    #[error("Forbidden")]
+    #[error("forbidden")]
     Forbidden,
 
-    #[error("Not Found")]
+    #[error("not found")]
     NotFound,
 
-    #[error("Too Many Requests")]
+    #[error("too many requests")]
     TooManyRequests,
 
-    #[error("Server Error: {0}")]
+    #[error("server error: {0}")]
     Server(String),
 
-    #[error("Deserialize Error: {0}")]
-    Deserialize(String),
-
-    #[error("API Error: {0}")]
+    #[error("api error: {0}")]
     Api(String),
 
-    #[error("Validation Error: {0}")]
-    Validation(#[from] validator::ValidationError),
+    #[error("deserialization error at {path}: {message}\nraw body: {raw}")]
+    Deserialize {
+        message: String,
+        path: String,
+        raw: String,
+    },
 }
 
 impl From<std::env::VarError> for Error {

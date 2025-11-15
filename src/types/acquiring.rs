@@ -44,7 +44,7 @@ impl PaymentListQuery {
     }
 }
 
-#[derive(Deserialize, Validate, Serialize)]
+#[derive(Deserialize, Validate, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct PaymentOperation {
     /// Уникальный код клиента

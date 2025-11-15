@@ -4,7 +4,7 @@ use validator::Validate;
 
 use crate::{PaymentMethod, PaymentObject, Supplier};
 
-#[derive(Serialize, Deserialize, Validate)]
+#[derive(Serialize, Deserialize, Validate, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ReceiptItem {
     /// Ставка НДС
@@ -36,7 +36,7 @@ pub struct ReceiptItem {
     pub supplier: Option<Supplier>,
 }
 
-#[derive(Deserialize, Serialize, EnumString, Display)]
+#[derive(Deserialize, Serialize, EnumString, Display, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum VatType {
     None,

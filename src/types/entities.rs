@@ -2,7 +2,7 @@ use crate::{validate_phone, validate_tax_code};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-#[derive(Deserialize, Validate, Serialize)]
+#[derive(Deserialize, Validate, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Supplier {
     #[validate(custom(function = "validate_phone"))]
@@ -15,7 +15,7 @@ pub struct Supplier {
     pub tax_code: String,
 }
 
-#[derive(Deserialize, Validate, Serialize)]
+#[derive(Deserialize, Validate, Serialize, Debug)]
 pub struct ReceiptClient {
     /// Для юрлица — название организации, для ИП и физического лица — ФИО
     #[validate(length(min = 1))]
@@ -28,7 +28,7 @@ pub struct ReceiptClient {
     pub phone: Option<String>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub enum TaxSystemCode {
     Osn,
     UsnIncome,
