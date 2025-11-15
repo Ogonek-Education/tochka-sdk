@@ -25,4 +25,7 @@ target
 
 /target
 
+# Added manually
 .env
+# Tochka's OpenAPI spec. Accessible at https://enter.tochka.com/doc/openapi/swagger.json
+spec.json
