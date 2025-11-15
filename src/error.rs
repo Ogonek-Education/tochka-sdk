@@ -4,19 +4,36 @@ use thiserror::Error;
 pub enum Error {
     #[error("Configuration Error: {0}")]
     Config(String),
-    #[error("Token misses permissions: {0}")]
-    MissingScope(String),
-    #[error("HTTP Error: {0}")]
-    Http(String),
+
+    #[error("Network Error: {0}")]
+    Network(String),
+
+    #[error("Timeout")]
+    Timeout,
+
+    #[error("Unauthorized")]
+    Unauthorized,
+
+    #[error("Forbidden")]
+    Forbidden,
+
+    #[error("Not Found")]
+    NotFound,
+
+    #[error("Too Many Requests")]
+    TooManyRequests,
+
+    #[error("Server Error: {0}")]
+    Server(String),
+
+    #[error("Deserialize Error: {0}")]
+    Deserialize(String),
+
     #[error("API Error: {0}")]
     Api(String),
-}
 
-impl From<reqwest::Error> for Error {
-    fn from(err: reqwest::Error) -> Self {
-        // Strip the error of the token
-        Self::Http(err.without_url().to_string())
-    }
+    #[error("Validation Error: {0}")]
+    Validation(#[from] validator::ValidationError),
 }
 
 impl From<std::env::VarError> for Error {

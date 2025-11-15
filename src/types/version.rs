@@ -1,5 +1,7 @@
 #[derive(Debug, Clone, Copy)]
+/// Версия API
 pub enum ApiVersion {
+    /// Других пока нет
     V1_0,
 }
 
