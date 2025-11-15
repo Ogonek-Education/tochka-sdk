@@ -25,7 +25,7 @@ pub struct Customer {
     pub customer_ogrn: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize, EnumString, Display)]
+#[derive(Debug, Deserialize, Serialize, EnumString, Display, PartialEq)]
 pub enum ExternalType {
     Business,
     Personal,
@@ -39,4 +39,9 @@ pub enum FinancialInstitutionIdentificationEnum {
 
     #[serde(rename = "RU.CBR.BIK")]
     RuCbrBik,
+}
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct CustomerPageData {
+    pub customer: Vec<Customer>,
 }

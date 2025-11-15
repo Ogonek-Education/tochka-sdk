@@ -21,9 +21,9 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "PascalCase")]
 pub struct Data<T> {
     /// Основная инфофрмация
-    data: T,
-    links: Link,
-    meta: Meta,
+    pub data: T,
+    pub links: Link,
+    pub meta: Meta,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

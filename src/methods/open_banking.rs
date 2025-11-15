@@ -1,12 +1,4 @@
-use serde::Deserialize;
-
-use crate::{ApiVersion, Client, Customer, Error, PaginatedResponse, Service};
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct CustomerPageData {
-    pub customer: Vec<Customer>,
-}
+use crate::{ApiVersion, Client, CustomerPageData, Error, PaginatedResponse, Service};
 
 impl Client {
     /// # Метод для получения списка доступных клиентов

@@ -27,5 +27,7 @@ target
 
 # Added manually
 .env
+.DS_Store
+
 # Tochka's OpenAPI spec. Accessible at https://enter.tochka.com/doc/openapi/swagger.json
 spec.json
