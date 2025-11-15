@@ -18,3 +18,9 @@ impl From<reqwest::Error> for Error {
         Self::Http(err.without_url().to_string())
     }
 }
+
+impl From<std::env::VarError> for Error {
+    fn from(err: std::env::VarError) -> Self {
+        Self::Config(err.to_string())
+    }
+}

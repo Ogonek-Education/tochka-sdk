@@ -1,26 +1,38 @@
-use crate::{Error, Scope};
+use crate::{ApiVersion, Error, Scope, Service};
 use std::time::Duration;
 
-pub const PRODUCTION_ENDPOINT: &str = "https://enter.T.com/uapi/open-banking";
-pub const SANDBOX_ENDPOINT: &str = "https://enter.T.com/sandbox/v2/open-banking";
+pub const PRODUCTION_BASE: &str = "https://enter.tochka.com/uapi/";
+pub const SANDBOX_BASE: &str = "https://enter.tochka.com/sandbox/v2/";
+
+pub enum Environment {
+    Sandbox,
+    Production,
+}
+
+impl Environment {
+    pub fn base_url(&self) -> &'static str {
+        match self {
+            Environment::Production => PRODUCTION_BASE,
+            Environment::Sandbox => SANDBOX_BASE,
+        }
+    }
+}
 
 pub struct Client {
     client: reqwest::Client,
-    base_url: String,
+    env: Environment,
     token: String,
-    scopes: Vec<Scope>,
 }
 
 impl Client {
-    pub fn new(
-        base_url: impl Into<String>,
-        token: impl Into<String>,
-        scopes: Vec<Scope>,
-    ) -> Result<Self, Error> {
+    pub fn new(env: Environment) -> Result<Self, Error> {
+        let version = env!("CARGO_PKG_VERSION");
+        let token = std::env::var("TOCHKA_TOKEN")?;
+
         let client = reqwest::Client::builder()
             .timeout(Duration::from_secs(20))
             .connect_timeout(Duration::from_secs(5))
-            .user_agent("tochka-rust-sdk/0.1")
+            .user_agent(format!("tochka-rust-sdk/{version}"))
             .pool_idle_timeout(Some(Duration::from_secs(90)))
             .pool_max_idle_per_host(20)
             .build()
@@ -28,19 +40,20 @@ impl Client {
 
         Ok(Self {
             client,
-            base_url: base_url.into(),
+            env,
             token: token.into(),
-            scopes: scopes,
         })
     }
 }
 
 impl Client {
-    fn requires(&self, needed: Scope) -> Result<(), Error> {
-        if self.scopes.contains(&needed) {
-            Ok(())
-        } else {
-            Err(Error::MissingScope(needed.to_string()))
-        }
+    pub fn url(&self, service: Service, version: ApiVersion, path: &str) -> String {
+        format!(
+            "{}{}/{}/{}",
+            self.env.base_url(),
+            service.path(),
+            version.as_str(),
+            path.trim_start_matches('/')
+        )
     }
 }
