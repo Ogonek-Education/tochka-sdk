@@ -1,19 +1,17 @@
-mod acquiring;
 mod customer;
 mod entities;
+mod external;
 mod payment;
 mod receipt;
 mod service;
 mod version;
-pub use acquiring::*;
 pub use customer::*;
 pub use entities::*;
+pub use external::*;
 pub use payment::*;
 pub use receipt::*;
 pub use service::*;
 pub use version::*;
-mod external;
-pub use external::*;
 
 use serde::{Deserialize, Serialize};
 
@@ -55,4 +53,16 @@ pub struct PaginatedResponse<T> {
 #[serde(rename_all = "camelCase")]
 pub struct Meta {
     pub total_pages: u64,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct PayloadWrapper<T> {
+    pub data: T,
+}
+
+impl<T> PayloadWrapper<T> {
+    pub fn wrap(data: T) -> Self {
+        Self { data }
+    }
 }
