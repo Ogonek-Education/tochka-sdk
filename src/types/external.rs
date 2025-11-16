@@ -1,66 +1,6 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum ExternalTransationTypeEnum {
-    #[serde(rename = "Неопределенное значение")]
-    Undefined,
-
-    #[serde(rename = "Платежное поручение")]
-    PaymentOrder,
-
-    #[serde(rename = "Платежное требование")]
-    PaymentRequest,
-
-    #[serde(rename = "Денежный чек, РКО")]
-    CashCheckRko,
-
-    #[serde(rename = "Объявление на взнос наличными, ПКО")]
-    CashDepositPko,
-
-    #[serde(rename = "Требование-поручение")]
-    DemandOrder,
-
-    #[serde(rename = "Инкассовое поручение")]
-    CollectionOrder,
-
-    #[serde(rename = "Расчетный чек")]
-    SettlementCheck,
-
-    #[serde(rename = "Аккредитив")]
-    LetterOfCredit,
-
-    #[serde(rename = "Мемориальный ордер")]
-    MemorialOrder,
-
-    #[serde(rename = "Погашение кредита")]
-    LoanRepayment,
-
-    #[serde(rename = "Выдача кредита")]
-    LoanIssuance,
-
-    #[serde(rename = "Авизо")]
-    Aviso,
-
-    #[serde(rename = "Банковские карты")]
-    BankCards,
-
-    #[serde(rename = "Платежный ордер")]
-    PaymentInstruction,
-
-    #[serde(rename = "Банковский ордер")]
-    BankOrder,
-
-    #[serde(rename = "Ордер по передаче ценностей")]
-    AssetTransferOrder,
-
-    #[serde(rename = "Программный ордер")]
-    ProgramOrder,
-
-    #[serde(rename = "Импортированная запись")]
-    ImportedRecord,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ExternalAccountStatusEnum {
     #[serde(rename = "Enabled")]
     Enabled,
@@ -132,20 +72,4 @@ pub enum ExternalConsentTypeEnum {
     MakeCustomer,
     #[serde(rename = "ManageGuarantee")]
     ManageGuarantee,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum ExternalCreditDebitIndicatorEnum {
-    #[serde(rename = "Credit")]
-    Credit,
-    #[serde(rename = "Debit")]
-    Debit,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum ExternalTransactionStatusEnum {
-    #[serde(rename = "Booked")]
-    Booked,
-    #[serde(rename = "Pending")]
-    Pending,
 }

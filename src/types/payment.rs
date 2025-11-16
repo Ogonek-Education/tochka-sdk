@@ -46,7 +46,7 @@ pub enum PaymentObject {
     Work,
 }
 use crate::{ReceiptClient, ReceiptItem, Supplier, TaxSystemCode};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 use validator::Validate;
 
 #[derive(Serialize, Debug, Default)]
@@ -57,11 +57,11 @@ pub struct PaymentListQuery {
     /// Начало периода создания операций
     ///
     /// 2020-01-20
-    pub from_date: Option<String>,
+    pub from_date: Option<NaiveDate>,
     /// Конец периода создания операций
     ///
     /// 2020-01-20
-    pub to_date: Option<String>,
+    pub to_date: Option<NaiveDate>,
     /// Номер страницы
     pub page: Option<u32>,
     /// Количество записей на странице
@@ -78,12 +78,12 @@ impl PaymentListQuery {
         }
     }
 
-    pub fn from_date(mut self, fd: impl Into<String>) -> Self {
+    pub fn from_date(mut self, fd: impl Into<NaiveDate>) -> Self {
         self.from_date = Some(fd.into());
         self
     }
 
-    pub fn to_date(mut self, td: impl Into<String>) -> Self {
+    pub fn to_date(mut self, td: impl Into<NaiveDate>) -> Self {
         self.to_date = Some(td.into());
         self
     }
@@ -118,7 +118,8 @@ pub struct PaymentOperation {
     /// Идентификатор транзакции в СБП
     ///
     /// Используется для возврата при оплате по СБП
-    pub transation_id: Option<String>,
+    #[serde(rename = "transactionId")]
+    pub transaction_id: Option<String>,
     /// Дата и время создания операции. Используется стандарт ISO8601
     ///
     /// Нет в POST, есть в GET

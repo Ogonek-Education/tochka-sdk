@@ -1,8 +1,7 @@
 use serde::{Deserialize, Serialize};
-use strum::{Display, EnumString};
 use validator::Validate;
 
-use crate::{PaymentMethod, PaymentObject, Supplier};
+use crate::{PaymentMethod, PaymentObject, Supplier, VatType};
 
 #[derive(Serialize, Deserialize, Validate, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -34,32 +33,6 @@ pub struct ReceiptItem {
     /// Данные поставщика
     #[serde(rename = "Supplier")]
     pub supplier: Option<Supplier>,
-}
-
-#[derive(Deserialize, Serialize, EnumString, Display, Debug)]
-#[serde(rename_all = "lowercase")]
-pub enum VatType {
-    None,
-    Vat0,
-    Vat5,
-    Vat7,
-    Vat10,
-    Vat20,
-    Vat105,
-    Vat107,
-    Vat110,
-    Vat120,
-}
-
-#[derive(Deserialize, Serialize, EnumString, Display)]
-#[serde(rename_all = "snake_case")]
-pub enum NdsKind {
-    Nds0,
-    Nds5,
-    Nds7,
-    Nds10,
-    Nds20,
-    WithoutNds,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

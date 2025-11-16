@@ -27,13 +27,3 @@ pub struct ReceiptClient {
     #[validate(custom(function = "validate_phone"))]
     pub phone: Option<String>,
 }
-
-#[derive(Deserialize, Serialize, Debug)]
-pub enum TaxSystemCode {
-    Osn,
-    UsnIncome,
-    UsnIncomeOutcome,
-    Esn,
-    Patent,
-    Envd,
-}
