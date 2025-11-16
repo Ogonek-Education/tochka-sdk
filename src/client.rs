@@ -1,15 +1,22 @@
 use crate::{ApiVersion, Error, Service};
 use std::time::Duration;
 
+/// The Production URL. Should be spiced with api version
 pub const PRODUCTION_BASE: &str = "https://enter.tochka.com/uapi/";
+
+/// The Sandbox URL. Should be spiced with api version
 pub const SANDBOX_BASE: &str = "https://enter.tochka.com/sandbox/v2/";
 
+/// Endpoint Environment
 pub enum Environment {
+    /// Sandbox endpoint
     Sandbox,
+    /// Big boy endpoint
     Production,
 }
 
 impl Environment {
+    /// Outputs the base URL based on the env
     pub fn base_url(&self) -> &'static str {
         match self {
             Environment::Production => PRODUCTION_BASE,
@@ -18,16 +25,24 @@ impl Environment {
     }
 }
 
+/// The main SDK Client
 pub struct Client {
+    /// Reqwest
     pub client: reqwest::Client,
+    /// Used in Webhooks
+    pub client_id: String,
+    /// Sandbox or Prod
     env: Environment,
+    /// Your JWT Token
     token: String,
 }
 
 impl Client {
+    /// Creates a new client for the given environment
     pub fn new(env: Environment) -> Result<Self, Error> {
         let version = env!("CARGO_PKG_VERSION");
         let token = std::env::var("TOCHKA_TOKEN")?;
+        let client_id = std::env::var("CLIENT_ID")?;
 
         let client = reqwest::Client::builder()
             .timeout(Duration::from_secs(20))
@@ -42,11 +57,13 @@ impl Client {
             client,
             env,
             token: token.into(),
+            client_id,
         })
     }
 }
 
 impl Client {
+    /// Creates a typesafe URL. You can format!() the path
     pub fn url(&self, service: Service, version: ApiVersion, path: &str) -> String {
         format!(
             "{}{}/{}/{}",

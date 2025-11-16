@@ -6,6 +6,7 @@ pub enum Service {
     Invoice,
     Consent,
     Sbp,
+    Webhook,
 }
 
 impl Service {
@@ -17,6 +18,7 @@ impl Service {
             Service::Invoice => "invoice",
             Service::Consent => "consent",
             Service::Sbp => "sbp",
+            Service::Webhook => "webhook",
         }
     }
 }

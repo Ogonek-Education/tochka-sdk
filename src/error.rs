@@ -1,3 +1,4 @@
+/// This enum represents all possible errors the SDK might have
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("configuration error: {0}")]

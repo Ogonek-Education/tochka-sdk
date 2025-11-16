@@ -27,14 +27,11 @@ impl Client {
     }
 
     /// Метод для получения баланса по нескольким счетам
-    pub async fn get_balances_list(
-        &self,
-        account_id: &str,
-    ) -> Result<PaginatedResponse<BalancePageData>, Error> {
+    pub async fn get_balances_list(&self) -> Result<PaginatedResponse<BalancePageData>, Error> {
         self.send::<PaginatedResponse<BalancePageData>>(self.client.get(self.url(
             crate::Service::OpenBanking,
             crate::ApiVersion::V1_0,
-            format!("accounts/{account_id}/balances").as_str(),
+            "accounts/balances",
         )))
         .await
     }

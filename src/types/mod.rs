@@ -7,6 +7,7 @@ mod receipt;
 mod service;
 mod transactions;
 mod version;
+mod webhooks;
 
 pub use balance::*;
 pub use customer::*;
@@ -17,6 +18,7 @@ pub use receipt::*;
 pub use service::*;
 pub use transactions::*;
 pub use version::*;
+pub use webhooks::*;
 
 use serde::{Deserialize, Serialize};
 
@@ -37,6 +39,7 @@ pub struct Link {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct PaginatedLink {
+    /// Self-link to the api
     #[serde(rename = "self")]
     pub this: String,
 
@@ -48,26 +51,44 @@ pub struct PaginatedLink {
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "PascalCase")]
+/// Wrapper for USUALLY a list endpoint
 pub struct PaginatedResponse<T> {
+    /// No idea why
     pub links: PaginatedLink,
+    /// Pagination
     pub meta: Meta,
+    /// Info
     pub data: T,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+/// A useless struct
 pub struct Meta {
+    /// Total pages
     pub total_pages: u64,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
+/// A wrapper that adapts human logic to Tochka's api
 pub struct PayloadWrapper<T> {
+    /// The main info
     pub data: T,
 }
 
 impl<T> PayloadWrapper<T> {
+    /// Does it what it says
     pub fn wrap(data: T) -> Self {
         Self { data }
     }
+}
+
+/// A single result field
+///
+/// Used in Delete enpoints as a return value
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ResultBody {
+    /// Whether the operation was successful
+    pub result: bool,
 }

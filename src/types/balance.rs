@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::Amount;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Balance {
     pub account_id: String,
@@ -15,13 +15,13 @@ pub struct Balance {
     pub amount: Amount,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
 pub enum CreditDebitIndicator {
     Credit,
     Debit,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub enum BalanceType {
     OpeningAvailable,
     ClosingAvailable,
@@ -29,7 +29,7 @@ pub enum BalanceType {
     OverdraftAvailable,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "PascalCase")]
 pub struct BalancePageData {
     pub balance: Vec<Balance>,
