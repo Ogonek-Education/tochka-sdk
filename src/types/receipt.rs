@@ -1,7 +1,20 @@
+use crate::validate_phone;
+use crate::{PaymentMethod, PaymentObject, Supplier, VatType};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::{PaymentMethod, PaymentObject, Supplier, VatType};
+#[derive(Deserialize, Validate, Serialize, Debug)]
+pub struct ReceiptClient {
+    /// Для юрлица — название организации, для ИП и физического лица — ФИО
+    #[validate(length(min = 1))]
+    pub name: Option<String>,
+    #[validate(email)]
+    /// Email покупателя, на который будет отправлен чек
+    pub email: String,
+    /// Телефон пользователя для отправки чека.
+    #[validate(custom(function = "validate_phone"))]
+    pub phone: Option<String>,
+}
 
 #[derive(Serialize, Deserialize, Validate, Debug)]
 #[serde(rename_all = "camelCase")]

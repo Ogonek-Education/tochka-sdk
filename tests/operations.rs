@@ -2,6 +2,7 @@ use chrono::DateTime;
 use tochka_sdk::{
     Data, PaginatedResponse, PaymentMode, PaymentOperation, PaymentPageData, PaymentStatus,
 };
+use uuid::uuid;
 
 #[test]
 fn deserialize_payment_operation_creation_example() {
@@ -34,12 +35,15 @@ fn deserialize_payment_operation_creation_example() {
 
     let parsed: Data<PaymentOperation> = serde_json::from_str(json).unwrap();
 
-    assert_eq!(parsed.data.purpose.as_deref(), Some("Футболка женская молочная"));
+    assert_eq!(
+        parsed.data.purpose.as_deref(),
+        Some("Футболка женская молочная")
+    );
     assert!(matches!(parsed.data.status, PaymentStatus::Created));
     assert_eq!(parsed.data.amount, 1234.0);
     assert_eq!(
         parsed.data.operation_id,
-        "48232c9a-ce82-1593-3cb6-5c85a1ffef8f"
+        uuid!("48232c9a-ce82-1593-3cb6-5c85a1ffef8f")
     );
     assert_eq!(parsed.data.payment_link_id.as_deref(), Some("order-123"));
     assert_eq!(
@@ -105,13 +109,18 @@ fn deserialize_payment_operation_list_example() {
 
     assert_eq!(operation.customer_code.as_deref(), Some("300000092"));
     assert_eq!(
-        operation.transaction_id.as_deref(),
-        Some("48232c9a-ce82-1593-3cb6-5c85a1ffef8f")
+        operation.transaction_id,
+        Some(uuid!("48232c9a-ce82-1593-3cb6-5c85a1ffef8f"))
     );
     assert!(matches!(operation.status, PaymentStatus::Created));
     assert_eq!(
         operation.payment_mode.as_deref().unwrap(),
-        &[PaymentMode::Sbp, PaymentMode::Card, PaymentMode::Tinkoff, PaymentMode::Dolyame]
+        &[
+            PaymentMode::Sbp,
+            PaymentMode::Card,
+            PaymentMode::Tinkoff,
+            PaymentMode::Dolyame
+        ]
     );
     assert_eq!(operation.amount, 1234.0);
     assert_eq!(operation.order.as_ref().unwrap().len(), 1);

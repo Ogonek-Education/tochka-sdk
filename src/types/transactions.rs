@@ -71,16 +71,16 @@ pub struct TransactionStatement {
 #[derive(Validate, Serialize, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct TransactionSubfields {
-    amount: Amount,
-    debtor_party: Contractor,
-    debtor_account: CashAccount,
-    debtor_agent: ContractorBank,
+    pub amount: Amount,
+    pub debtor_party: Contractor,
+    pub debtor_account: CashAccount,
+    pub debtor_agent: ContractorBank,
 
-    creditor_party: Contractor,
-    creditor_account: CashAccount,
-    creditor_agent: ContractorBank,
+    pub creditor_party: Contractor,
+    pub creditor_account: CashAccount,
+    pub creditor_agent: ContractorBank,
 
-    tax_fields: TaxFields,
+    pub tax_fields: TaxFields,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

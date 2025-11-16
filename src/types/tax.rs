@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Display, EnumString, PartialEq)]
-enum DateValue {
+pub enum DateValue {
     Text(String),
     Number(i32),
 }

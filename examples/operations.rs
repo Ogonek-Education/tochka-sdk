@@ -1,5 +1,7 @@
 use std::io::{Read, stdin};
-use tochka_sdk::{Client, CreatePaymentPayload, Environment, PaymentListQuery, PaymentMode};
+use tochka_sdk::{
+    Client, CreatePaymentPayload, Environment, PaymentListQuery, PaymentMode, PaymentPath,
+};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -15,6 +17,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .payment_mode(PaymentMode::Card)
                 .payment_mode(PaymentMode::Sbp)
                 .ttl(10800),
+            PaymentPath::Standard,
         )
         .await?;
 
@@ -29,7 +32,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Schritt 2: aktualisierte Info abfragen
     let operation = client
-        .payment_operation_info(&create.data.operation_id)
+        .payment_operation_info(create.data.operation_id)
         .await?;
 
     println!("Aktueller Status:");

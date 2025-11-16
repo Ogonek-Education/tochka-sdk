@@ -1,5 +1,20 @@
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
+use uuid::Uuid;
+
+pub enum PaymentPath {
+    Standard,
+    WithReceipt,
+}
+
+impl PaymentPath {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            PaymentPath::Standard => "payments",
+            PaymentPath::WithReceipt => "payments_with_receipt",
+        }
+    }
+}
 
 /// Полностью ли оплачен
 #[derive(Serialize, Debug, Deserialize, EnumString, Display)]
@@ -119,7 +134,7 @@ pub struct PaymentOperation {
     ///
     /// Используется для возврата при оплате по СБП
     #[serde(rename = "transactionId")]
-    pub transaction_id: Option<String>,
+    pub transaction_id: Option<Uuid>,
     /// Дата и время создания операции. Используется стандарт ISO8601
     ///
     /// Нет в POST, есть в GET
@@ -144,7 +159,7 @@ pub struct PaymentOperation {
     /// Статус платежа
     pub status: PaymentStatus,
     /// Идентификатор платежа
-    pub operation_id: String,
+    pub operation_id: Uuid,
     /// Ссылка на оплату
     pub payment_link: String,
     /// Идентификатор торговой точки в интернет-эквайринге
@@ -152,7 +167,7 @@ pub struct PaymentOperation {
     /// Идентификатор покупателя
     ///
     /// uuid
-    pub consumer_id: Option<String>,
+    pub consumer_id: Option<Uuid>,
     /// Список операций, связанных с платежом
     #[serde(rename = "Order")]
     pub order: Option<Vec<Order>>,
