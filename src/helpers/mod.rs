@@ -1,5 +1,7 @@
 use validator::ValidationError;
 
+/// RU: Проверка телефонного номера: 11–15 символов, допускается ведущий '+'.  
+/// EN: Validate phone number length (11–15) with optional leading '+'.
 pub fn validate_phone(phone: &str) -> Result<(), ValidationError> {
     // Length: 11–15
     if phone.len() < 11 || phone.len() > 15 {
@@ -19,6 +21,8 @@ pub fn validate_phone(phone: &str) -> Result<(), ValidationError> {
     Ok(())
 }
 
+/// RU: Проверка ИНН/налогового номера: длина 10–12, только цифры.  
+/// EN: Validate tax code length (10–12) and digits-only.
 pub fn validate_tax_code(tax: &str) -> Result<(), ValidationError> {
     // Length: 10–12
     if tax.len() < 10 || tax.len() > 12 {

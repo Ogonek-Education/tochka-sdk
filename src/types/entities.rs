@@ -3,19 +3,24 @@ use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
 use validator::Validate;
 
+/// RU: Данные поставщика (для чеков). EN: Supplier information for receipts.
 #[derive(Deserialize, Validate, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Supplier {
+    /// RU: Телефон. EN: Phone number.
     #[validate(custom(function = "validate_phone"))]
     pub phone: String,
 
+    /// RU: Наименование. EN: Name.
     #[validate(length(min = 1))]
     pub name: String,
 
+    /// RU: ИНН. EN: Tax code.
     #[validate(custom(function = "validate_tax_code"))]
     pub tax_code: String,
 }
 
+/// RU: Информация о контрагенте. EN: Counterparty information.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Contractor {
     pub inn: Option<String>,
@@ -23,6 +28,7 @@ pub struct Contractor {
     pub name: Option<String>,
 }
 
+/// RU: Банк контрагента. EN: Counterparty bank details.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ContractorBank {
@@ -32,6 +38,7 @@ pub struct ContractorBank {
     pub scheme_name: FinancialInstitutionIdentification,
 }
 
+/// RU: Схемы идентификации банков. EN: Bank identification schemes.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum FinancialInstitutionIdentification {
     #[serde(rename = "RU.CBR.BICFI")]
@@ -41,34 +48,37 @@ pub enum FinancialInstitutionIdentification {
     RuCbrBik,
 }
 
+/// RU: Модель клиента из API. EN: Customer model from API.
 #[derive(Debug, Deserialize, Serialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct Customer {
-    /// Уникальный код клиента
+    /// RU: Уникальный код клиента. EN: Unique customer code.
     pub customer_code: String,
-    /// Тип клиент (физическое или юридическое лицо)
+    /// RU: Тип клиента (физ/юр). EN: Customer type (personal/business).
     pub customer_type: ExternalType,
-    /// Признак резидента
+    /// RU: Резидент РФ. EN: Resident flag.
     pub is_resident: bool,
-    /// ИНН
+    /// RU: ИНН. EN: Tax code (INN).
     #[validate(custom(function = validate_tax_code))]
     pub tax_code: Option<String>,
-    /// Индивидуальный Предприниматель Тест
+    /// RU: Полное имя/название. EN: Full name.
     pub full_name: String,
-    /// ИП Тест
+    /// RU: Короткое имя. EN: Short name.
     pub short_name: Option<String>,
-    /// КПП
+    /// RU: КПП. EN: KPP.
     pub kpp: Option<String>,
-    /// ОГРН или ОГРНИМ
+    /// RU: ОГРН/ОГРНИП. EN: OGRN/OGRNIP.
     pub customer_ogrn: Option<String>,
 }
 
+/// RU: Тип клиента. EN: Customer type.
 #[derive(Debug, Clone, Deserialize, Serialize, EnumString, Display, PartialEq)]
 pub enum ExternalType {
     Business,
     Personal,
 }
 
+/// RU: Страница клиентов. EN: Customer page payload.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct CustomerPageData {

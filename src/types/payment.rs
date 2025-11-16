@@ -2,12 +2,16 @@ use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
 use uuid::Uuid;
 
+/// RU: Варианты создания платежа. EN: Payment creation paths.
 pub enum PaymentPath {
+    /// RU: Обычная ссылка на оплату. EN: Standard payment link.
     Standard,
+    /// RU: Создание с чеком. EN: Payment with receipt.
     WithReceipt,
 }
 
 impl PaymentPath {
+    /// RU: Вернуть строковый путь для API. EN: Return API path as string.
     pub fn as_str(&self) -> &'static str {
         match self {
             PaymentPath::Standard => "payments",
@@ -16,7 +20,7 @@ impl PaymentPath {
     }
 }
 
-/// Полностью ли оплачен
+/// RU: Фискальный признак способа оплаты (полная оплата/предоплата). EN: Fiscal payment method flag.
 #[derive(Serialize, Debug, Deserialize, EnumString, Display)]
 #[strum(serialize_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
@@ -25,7 +29,7 @@ pub enum PaymentMethod {
     FullPrepayment,
 }
 
-/// Статус платежа
+/// RU: Статус платежной операции. EN: Payment status.
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum PaymentStatus {
@@ -40,7 +44,7 @@ pub enum PaymentStatus {
     WaitFullPayment,
 }
 
-/// Как клиент платит – способ оплаты
+/// RU: Способ оплаты клиента. EN: Payment mode.
 #[derive(Deserialize, Serialize, Debug, EnumString, Display, PartialEq)]
 #[strum(serialize_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
@@ -51,7 +55,7 @@ pub enum PaymentMode {
     Dolyame,
 }
 
-/// Признак предмета платежа
+/// RU: Признак предмета расчёта. EN: Payment object type.
 #[derive(Deserialize, Serialize, Debug, EnumString, Display)]
 #[strum(serialize_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
@@ -64,6 +68,7 @@ use crate::{ReceiptClient, ReceiptItem, Supplier, TaxSystemCode};
 use chrono::{DateTime, NaiveDate, Utc};
 use validator::Validate;
 
+/// RU: Параметры фильтрации списка платежей. EN: Query params for payments list.
 #[derive(Serialize, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct PaymentListQuery {
@@ -114,77 +119,65 @@ impl PaymentListQuery {
     }
 }
 
+/// RU: Операция интернет-эквайринга. EN: Acquiring payment operation.
 #[derive(Deserialize, Validate, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct PaymentOperation {
-    /// Уникальный код клиента
-    ///
-    /// Его нет в ответах POST запросов. Всегда есть в GET
+    /// RU: Уникальный код клиента (в ответах GET). EN: Customer code (present in GET responses).
     #[validate(length(equal = 9))]
     pub customer_code: Option<String>,
-    /// Система налогообложения
+    /// RU: Система налогообложения. EN: Tax system code.
     pub tax_system_code: Option<TaxSystemCode>,
-    /// Присутствует, если оплата произведена
-    ///
-    /// У Точки это два типа. По сути делают то же самое
+    /// RU: Тип оплаты при проведённой операции. EN: Payment type when payment is processed.
     pub payment_type: Option<PaymentMode>,
-    /// Идентификатор платежа в процессинге или СБП
+    /// RU: Идентификатор платежа в процессинге/СБП. EN: Processor/SBP payment ID.
     pub payment_id: Option<String>,
-    /// Идентификатор транзакции в СБП
-    ///
-    /// Используется для возврата при оплате по СБП
+    /// RU: Идентификатор транзакции СБП (для возврата). EN: SBP transaction ID (for refund).
     #[serde(rename = "transactionId")]
     pub transaction_id: Option<Uuid>,
-    /// Дата и время создания операции. Используется стандарт ISO8601
-    ///
-    /// Нет в POST, есть в GET
+    /// RU: Дата/время создания (ISO8601). EN: Creation timestamp (ISO8601).
     pub created_at: Option<DateTime<Utc>>,
-    /// Способ оплаты
+    /// RU: Разрешённые способы оплаты. EN: Allowed payment modes.
     pub payment_mode: Option<Vec<PaymentMode>>,
-    /// URL адрес, куда будет переправлен клиент после оплаты услуги
+    /// RU: URL после успешной оплаты. EN: Redirect URL on success.
     pub redirect_url: Option<String>,
-    /// URL адрес, куда будет переправлен клиент в случае неуспешной оплаты
+    /// RU: URL после неуспешной оплаты. EN: Redirect URL on failure.
     pub fail_redirect_url: Option<String>,
-    /// Данные покупателя
+    /// RU: Данные покупателя для чека. EN: Receipt client data.
     #[serde(rename = "Client")]
     pub client: Option<ReceiptClient>,
-    /// Список товаров в заказе
+    /// RU: Список товаров. EN: Order items.
     pub items: Option<Vec<ReceiptItem>>,
-    /// Назначение платежа
-    ///
-    /// Отсутствует, если при создании платежа назначение не было указано
+    /// RU: Назначение платежа. EN: Payment purpose.
     pub purpose: Option<String>,
-    /// Сумма платежа
+    /// RU: Сумма платежа. EN: Payment amount.
     pub amount: f64,
-    /// Статус платежа
+    /// RU: Статус платежа. EN: Payment status.
     pub status: PaymentStatus,
-    /// Идентификатор платежа
+    /// RU: Идентификатор операции. EN: Operation ID.
     pub operation_id: Uuid,
-    /// Ссылка на оплату
+    /// RU: Ссылка на оплату. EN: Payment link.
     pub payment_link: String,
-    /// Идентификатор торговой точки в интернет-эквайринге
+    /// RU: Идентификатор торговой точки. EN: Merchant ID.
     pub merchant_id: Option<String>,
-    /// Идентификатор покупателя
-    ///
-    /// uuid
+    /// RU: Идентификатор покупателя (UUID). EN: Consumer ID (UUID).
     pub consumer_id: Option<Uuid>,
-    /// Список операций, связанных с платежом
+    /// RU: Связанные операции. EN: Related operations.
     #[serde(rename = "Order")]
     pub order: Option<Vec<Order>>,
-    /// Данные поставщика
+    /// RU: Данные поставщика. EN: Supplier data.
     #[serde(rename = "Supplier")]
     pub supplier: Option<Supplier>,
-    /// Создать платёж с двухэтапной оплатой
+    /// RU: Признак двухэтапной оплаты. EN: Two-step payment flag.
     pub pre_authorization: Option<bool>,
-    /// Дата и время оплаты
-    ///
-    /// В докуентации не сказано, что это ISO
+    /// RU: Время оплаты. EN: Payment time.
     pub paid_at: Option<String>,
-    /// Уникальный номер заказа
+    /// RU: Внутренний номер заказа. EN: Payment link identifier.
     #[validate(length(min = 1, max = 45))]
     pub payment_link_id: Option<String>,
-    // Create implementation
+    /// RU: Сохранить карту. EN: Save card for future use.
     pub save_card: Option<bool>,
+    /// RU: TTL ссылки в минутах. EN: Link TTL in minutes.
     pub ttl: Option<i64>,
 }
 

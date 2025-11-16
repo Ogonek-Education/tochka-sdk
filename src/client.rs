@@ -1,22 +1,26 @@
 use crate::{ApiVersion, Error, Service};
 use std::time::Duration;
 
-/// The Production URL. Should be spiced with api version
+/// RU: Базовый URL продакшн-окружения Tochka API.  
+/// EN: Base Tochka API production URL without version suffix.
 pub const PRODUCTION_BASE: &str = "https://enter.tochka.com/uapi/";
 
-/// The Sandbox URL. Should be spiced with api version
+/// RU: Базовый URL песочницы Tochka API.  
+/// EN: Base Tochka API sandbox URL without version suffix.
 pub const SANDBOX_BASE: &str = "https://enter.tochka.com/sandbox/v2/";
 
-/// Endpoint Environment
+/// RU: Окружение, в котором выполняются запросы.  
+/// EN: Endpoint environment selector.
 pub enum Environment {
-    /// Sandbox endpoint
+    /// RU: Песочница. EN: Sandbox endpoint.
     Sandbox,
-    /// Big boy endpoint
+    /// RU: Продакшн. EN: Production endpoint.
     Production,
 }
 
 impl Environment {
-    /// Outputs the base URL based on the env
+    /// RU: Вернуть базовый URL в зависимости от окружения.  
+    /// EN: Return the base URL for the selected environment.
     pub fn base_url(&self) -> &'static str {
         match self {
             Environment::Production => PRODUCTION_BASE,
@@ -25,20 +29,22 @@ impl Environment {
     }
 }
 
-/// The main SDK Client
+/// RU: Основной клиент SDK Tochka.  
+/// EN: Main Tochka SDK client.
 pub struct Client {
-    /// Reqwest
+    /// RU: HTTP-клиент reqwest. EN: Underlying reqwest client.
     pub client: reqwest::Client,
-    /// Used in Webhooks
+    /// RU: Идентификатор приложения (используется в вебхуках). EN: Application client ID (used in webhooks).
     pub client_id: String,
-    /// Sandbox or Prod
+    /// RU: Текущая среда (песочница или прод). EN: Current environment.
     env: Environment,
-    /// Your JWT Token
+    /// RU: JWT/оAuth токен доступа. EN: Access token (JWT/OAuth).
     token: String,
 }
 
 impl Client {
-    /// Creates a new client for the given environment
+    /// RU: Создать клиента для указанного окружения.  
+    /// EN: Create a client configured for the given environment.
     pub fn new(env: Environment) -> Result<Self, Error> {
         let version = env!("CARGO_PKG_VERSION");
         let token = std::env::var("TOCHKA_TOKEN")?;
@@ -63,7 +69,8 @@ impl Client {
 }
 
 impl Client {
-    /// Creates a typesafe URL. You can format!() the path
+    /// RU: Собрать полный URL для сервиса/версии/пути.  
+    /// EN: Build a fully-qualified URL for the given service, version and path.
     pub fn url(&self, service: Service, version: ApiVersion, path: &str) -> String {
         format!(
             "{}{}/{}/{}",
@@ -76,7 +83,8 @@ impl Client {
 }
 
 impl Client {
-    /// The hook that processes errors, outputs deserialization issues, and puts on auth bearers
+    /// RU: Отправить запрос: добавить авторизацию, проверить HTTP-статусы и десериализовать тело.  
+    /// EN: Send a request with auth, map HTTP errors, and deserialize the body.
     pub async fn send<T>(&self, req: reqwest::RequestBuilder) -> Result<T, Error>
     where
         T: serde::de::DeserializeOwned,
