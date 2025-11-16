@@ -93,38 +93,6 @@ pub enum ExternalAccountSubTypeEnum {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum ExternalAcquiringPaymentTypeEnum {
-    #[serde(rename = "sbp")]
-    Sbp,
-    #[serde(rename = "card")]
-    Card,
-    #[serde(rename = "tinkoff")]
-    Tinkoff,
-    #[serde(rename = "dolyame")]
-    Dolyame,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum ExternalBalanceStaticTypeEnum {
-    #[serde(rename = "OpeningAvailable")]
-    OpeningAvailable,
-    #[serde(rename = "ClosingAvailable")]
-    ClosingAvailable,
-    #[serde(rename = "Expected")]
-    Expected,
-    #[serde(rename = "OverdraftAvailable")]
-    OverdraftAvailable,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum ExternalBalanceTypeEnum {
-    #[serde(rename = "Credit")]
-    Credit,
-    #[serde(rename = "Debit")]
-    Debit,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ExternalConsentTypeEnum {
     #[serde(rename = "ReadAccountsBasic")]
     ReadAccountsBasic,

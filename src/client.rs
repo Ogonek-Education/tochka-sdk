@@ -59,6 +59,7 @@ impl Client {
 }
 
 impl Client {
+    /// The hook that processes errors, outputs deserialization issues, and puts on auth bearers
     pub async fn send<T>(&self, req: reqwest::RequestBuilder) -> Result<T, Error>
     where
         T: serde::de::DeserializeOwned,

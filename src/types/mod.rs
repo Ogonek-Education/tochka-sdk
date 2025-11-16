@@ -1,16 +1,21 @@
+mod balance;
 mod customer;
 mod entities;
 mod external;
 mod payment;
 mod receipt;
 mod service;
+mod transactions;
 mod version;
+
+pub use balance::*;
 pub use customer::*;
 pub use entities::*;
 pub use external::*;
 pub use payment::*;
 pub use receipt::*;
 pub use service::*;
+pub use transactions::*;
 pub use version::*;
 
 use serde::{Deserialize, Serialize};
