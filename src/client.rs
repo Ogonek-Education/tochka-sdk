@@ -48,7 +48,7 @@ impl Client {
     pub fn new(env: Environment) -> Result<Self, Error> {
         let version = env!("CARGO_PKG_VERSION");
         let token = std::env::var("TOCHKA_TOKEN")?;
-        let client_id = std::env::var("CLIENT_ID")?;
+        let client_id = std::env::var("TOCHKA_CLIENT_ID")?;
 
         let client = reqwest::Client::builder()
             .timeout(Duration::from_secs(20))

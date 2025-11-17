@@ -25,6 +25,9 @@ fn deserialize_webhook_response_example() {
     assert_eq!(parsed.data.url, "https://example.com/webhook");
     assert!(matches!(
         parsed.data.webhooks_list.as_slice(),
-        [WebhookType::IncomingPayment, WebhookType::AcquiringInternetPayment]
+        [
+            WebhookType::IncomingPayment,
+            WebhookType::AcquiringInternetPayment
+        ]
     ));
 }

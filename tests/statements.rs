@@ -1,8 +1,8 @@
 use chrono::{DateTime, NaiveDate};
 use codes_iso_4217::CurrencyCode;
 use tochka_sdk::{
-    AccountIdentification, Data, FinancialInstitutionIdentification, PaginatedResponse, StatementPageData,
-    StatementStatus, TransactionStatus,
+    AccountIdentification, Data, FinancialInstitutionIdentification, PaginatedResponse,
+    StatementPageData, StatementStatus, TransactionStatus,
 };
 
 #[test]

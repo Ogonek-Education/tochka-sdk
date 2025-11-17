@@ -1,7 +1,8 @@
 use chrono::DateTime;
 use codes_iso_4217::CurrencyCode;
 use tochka_sdk::{
-    BalancePageData, BalanceType, CreditDebitIndicator, Data, PaginatedResponse, TransactionPageData,
+    BalancePageData, BalanceType, CreditDebitIndicator, Data, PaginatedResponse,
+    TransactionPageData,
 };
 
 #[test]
@@ -42,8 +43,9 @@ fn deserialize_authorized_card_transactions_example() {
     let parsed: Data<TransactionPageData> = serde_json::from_str(json).unwrap();
     let tx = &parsed.data.transactions[0];
 
-    let expected_date =
-        DateTime::parse_from_rfc3339("2019-01-01T06:06:06.364+00:00").unwrap().with_timezone(&chrono::Utc);
+    let expected_date = DateTime::parse_from_rfc3339("2019-01-01T06:06:06.364+00:00")
+        .unwrap()
+        .with_timezone(&chrono::Utc);
     assert_eq!(tx.account_id, "40817810802000000008/044525104");
     assert_eq!(tx.pan, "string");
     assert_eq!(tx.date_time, expected_date);
@@ -142,9 +144,6 @@ fn deserialize_balances_list_example() {
         parsed.data.balance[1].credit_debit_indicator,
         CreditDebitIndicator::Debit
     );
-    assert_eq!(
-        parsed.data.balance[1].balance_type,
-        BalanceType::Expected
-    );
+    assert_eq!(parsed.data.balance[1].balance_type, BalanceType::Expected);
     assert_eq!(parsed.data.balance[1].amount.currency, CurrencyCode::RUB);
 }

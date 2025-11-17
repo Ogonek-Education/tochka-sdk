@@ -3,7 +3,7 @@ use strum::{Display, EnumString};
 use validator::Validate;
 
 /// RU: Настройка вебхуков приложения. EN: Application webhook configuration.
-#[derive(Serialize, Debug, Deserialize, Validate)]
+#[derive(Serialize, Debug, Deserialize, Validate, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Webhook {
     /// RU: Список подписок. EN: Subscribed webhook types.
@@ -14,7 +14,7 @@ pub struct Webhook {
 }
 
 /// RU: Типы вебхуков. EN: Webhook event types.
-#[derive(Serialize, Debug, Deserialize, EnumString, Display)]
+#[derive(Serialize, Debug, Deserialize, EnumString, Display, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum WebhookType {
     IncomingPayment,

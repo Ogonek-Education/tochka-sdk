@@ -59,10 +59,7 @@ fn deserialize_accounts_list_example() {
     );
     let details: &AccountDetail = &account.account_details.as_ref().unwrap()[0];
     assert_eq!(details.scheme_name, "RU.CBR.AccountNumber");
-    assert_eq!(
-        details.identification,
-        "40817810802000000008/044525104"
-    );
+    assert_eq!(details.identification, "40817810802000000008/044525104");
 }
 
 #[test]

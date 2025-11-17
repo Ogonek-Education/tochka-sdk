@@ -1,9 +1,7 @@
 use chrono::DateTime;
 use uuid::Uuid;
 
-use tochka_sdk::{
-    Data, PaymentMode, PaymentStatus, RegistryPageData, Refund, RetailerPageData,
-};
+use tochka_sdk::{Data, PaymentMode, PaymentStatus, Refund, RegistryPageData, RetailerPageData};
 
 #[test]
 fn deserialize_refund_payment_example() {
@@ -69,8 +67,9 @@ fn deserialize_payment_registry_example() {
     assert_eq!(item.purpose, "Футболка женская молочная");
     assert!(matches!(item.status, PaymentStatus::Created));
     assert_eq!(item.amount, 18548.39);
-    let parsed_time =
-        DateTime::parse_from_rfc3339("2022-10-18T08:28:59+00:00").unwrap().with_timezone(&chrono::Utc);
+    let parsed_time = DateTime::parse_from_rfc3339("2022-10-18T08:28:59+00:00")
+        .unwrap()
+        .with_timezone(&chrono::Utc);
     assert_eq!(item.time, parsed_time);
     assert_eq!(item.number, 123456);
     assert_eq!(item.enrollment_amount, 18448.39);
@@ -113,7 +112,10 @@ fn deserialize_retailer_list_example() {
 
     assert!(retailer.is_active);
     assert_eq!(retailer.status, tochka_sdk::RetailerStatus::REG);
-    assert_eq!(retailer.payment_modes, vec![PaymentMode::Sbp, PaymentMode::Card]);
+    assert_eq!(
+        retailer.payment_modes,
+        vec![PaymentMode::Sbp, PaymentMode::Card]
+    );
     assert_eq!(retailer.merchant_id, "200000000001056");
     assert_eq!(parsed.meta.total_pages, 1);
 }
