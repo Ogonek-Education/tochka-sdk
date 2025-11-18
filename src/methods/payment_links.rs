@@ -19,7 +19,7 @@ impl Client {
 
     /// Метод для создания ссылки на оплату
     ///
-    /// Path позволяет генерить чек, если он нужен
+    /// Path позволяет генерить чек, если он нужен. Для этого передйте PaymentPath с нужным параметром
     pub async fn create_payment_operation(
         &self,
         payload: CreatePaymentPayload,

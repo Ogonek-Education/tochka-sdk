@@ -11,6 +11,7 @@ pub const SANDBOX_BASE: &str = "https://enter.tochka.com/sandbox/v2/";
 
 /// RU: Окружение, в котором выполняются запросы.  
 /// EN: Endpoint environment selector.
+#[derive(Clone, Debug)]
 pub enum Environment {
     /// RU: Песочница. EN: Sandbox endpoint.
     Sandbox,
@@ -31,11 +32,12 @@ impl Environment {
 
 /// RU: Основной клиент SDK Tochka.  
 /// EN: Main Tochka SDK client.
+#[derive(Clone, Debug)]
 pub struct Client {
     /// RU: HTTP-клиент reqwest. EN: Underlying reqwest client.
-    pub client: reqwest::Client,
+    pub(crate) client: reqwest::Client,
     /// RU: Идентификатор приложения (используется в вебхуках). EN: Application client ID (used in webhooks).
-    pub client_id: String,
+    pub(crate) client_id: String,
     /// RU: Текущая среда (песочница или прод). EN: Current environment.
     env: Environment,
     /// RU: JWT/оAuth токен доступа. EN: Access token (JWT/OAuth).
@@ -65,6 +67,22 @@ impl Client {
             token: token.into(),
             client_id,
         })
+    }
+
+    /// RU: Создать клиента и сразу получить customer_code для Business-аккаунта.  
+    /// EN: Create a client and resolve the Business customer_code upfront.
+    ///
+    /// Если задана переменная окружения `CUSTOMER_CODE`, будет использована она. Иначе SDK
+    /// выполнит `get_accounts_list`, отфильтрует Business-аккаунты и:
+    /// - если найден один — вернёт его;
+    /// - если найдено несколько — вернёт ошибку конфигурации и предложит установить `CUSTOMER_CODE`.
+    pub async fn new_with_business_customer_code(
+        env: Environment,
+    ) -> Result<(Self, String), Error> {
+        let client = Self::new(env)?;
+        let customer_code = client.resolve_business_customer_code().await?;
+
+        Ok((client, customer_code))
     }
 }
 

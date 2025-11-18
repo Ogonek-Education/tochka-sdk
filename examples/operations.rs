@@ -7,8 +7,7 @@ use tochka_sdk::{
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
 
-    let customer_code = std::env::var("CUSTOMER_CODE").unwrap();
-    let client = Client::new(Environment::Production)?;
+    let (client, customer_code) = Client::new_with_business_customer_code(Environment::Production).await?;
 
     // Schritt 1: Zahlung erstellen
     let create = client
