@@ -4,7 +4,7 @@ use strum::{Display, EnumString};
 use validator::Validate;
 
 /// RU: Данные поставщика (для чеков). EN: Supplier information for receipts.
-#[derive(Deserialize, Validate, Serialize, Debug)]
+#[derive(Deserialize, Validate, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Supplier {
     /// RU: Телефон. EN: Phone number.

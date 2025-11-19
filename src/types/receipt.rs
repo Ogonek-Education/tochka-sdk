@@ -3,7 +3,7 @@ use crate::{PaymentMethod, PaymentObject, Supplier, VatType};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-#[derive(Deserialize, Validate, Serialize, Debug)]
+#[derive(Deserialize, Validate, Serialize, Debug, Clone)]
 pub struct ReceiptClient {
     /// Для юрлица — название организации, для ИП и физического лица — ФИО
     #[validate(length(min = 1))]
@@ -16,7 +16,7 @@ pub struct ReceiptClient {
     pub phone: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Validate, Debug)]
+#[derive(Serialize, Deserialize, Validate, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ReceiptItem {
     /// Ставка НДС

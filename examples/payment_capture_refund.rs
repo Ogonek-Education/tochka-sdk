@@ -1,9 +1,9 @@
-use tochka_sdk::{Client, Environment, RefundPayload};
+use tochka_sdk::{Client, RefundPayload};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
-    let client = Client::new(Environment::Production)?;
+    let client = Client::new(None)?;
 
     let operation_id = std::env::var("OPERATION_ID")
         .expect("Set OPERATION_ID with a two-step payment operation id");

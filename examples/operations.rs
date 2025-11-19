@@ -1,21 +1,17 @@
 use std::io::{Read, stdin};
-use tochka_sdk::{
-    Client, CreatePaymentPayload, Environment, PaymentListQuery, PaymentMode, PaymentPath,
-};
+use tochka_sdk::{Client, CreatePaymentPayload, PaymentListQuery, PaymentMode, PaymentPath};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
 
-    let (client, customer_code) = Client::new_with_business_customer_code(Environment::Production).await?;
+    let client = Client::new(None)?;
 
     // Schritt 1: Zahlung erstellen
     let create = client
         .create_payment_operation(
-            CreatePaymentPayload::new(10.0, &customer_code, "Оплата услуг")
-                .payment_mode(PaymentMode::Card)
-                .payment_mode(PaymentMode::Sbp)
-                .ttl(10800),
+            CreatePaymentPayload::new(10.0, client.customer_code.clone(), "Оплата услуг")
+                .payment_modes([PaymentMode::Card, PaymentMode::Sbp]),
             PaymentPath::Standard,
         )
         .await?;
@@ -43,7 +39,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Schritt 3: Liste abrufen
     let list = client
-        .payment_operation_list(PaymentListQuery::new(&customer_code))
+        .payment_operation_list(PaymentListQuery::new(client.customer_code.clone()))
         .await?;
 
     println!("Operationen:");

@@ -21,7 +21,7 @@ impl PaymentPath {
 }
 
 /// RU: Фискальный признак способа оплаты (полная оплата/предоплата). EN: Fiscal payment method flag.
-#[derive(Serialize, Debug, Deserialize, EnumString, Display)]
+#[derive(Serialize, Debug, Deserialize, EnumString, Display, Clone)]
 #[strum(serialize_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum PaymentMethod {
@@ -30,7 +30,7 @@ pub enum PaymentMethod {
 }
 
 /// RU: Статус платежной операции. EN: Payment status.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum PaymentStatus {
     Created,
@@ -45,7 +45,7 @@ pub enum PaymentStatus {
 }
 
 /// RU: Способ оплаты клиента. EN: Payment mode.
-#[derive(Deserialize, Serialize, Debug, EnumString, Display, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, EnumString, Display, PartialEq, Clone, Copy)]
 #[strum(serialize_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
 pub enum PaymentMode {
@@ -56,7 +56,7 @@ pub enum PaymentMode {
 }
 
 /// RU: Признак предмета расчёта. EN: Payment object type.
-#[derive(Deserialize, Serialize, Debug, EnumString, Display)]
+#[derive(Deserialize, Serialize, Debug, EnumString, Display, Clone)]
 #[strum(serialize_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
 pub enum PaymentObject {
@@ -73,7 +73,7 @@ use validator::Validate;
 #[serde(rename_all = "camelCase")]
 pub struct PaymentListQuery {
     /// Уникальный код клиента
-    pub customer_code: String,
+    pub customer_code: Option<String>,
     /// Начало периода создания операций
     ///
     /// 2020-01-20
@@ -91,9 +91,9 @@ pub struct PaymentListQuery {
 }
 
 impl PaymentListQuery {
-    pub fn new(customer_code: impl Into<String>) -> Self {
+    pub fn new(customer_code: Option<String>) -> Self {
         Self {
-            customer_code: customer_code.into(),
+            customer_code: customer_code,
             ..Default::default()
         }
     }
@@ -120,7 +120,7 @@ impl PaymentListQuery {
 }
 
 /// RU: Операция интернет-эквайринга. EN: Acquiring payment operation.
-#[derive(Deserialize, Validate, Serialize, Debug)]
+#[derive(Deserialize, Validate, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PaymentOperation {
     /// RU: Уникальный код клиента (в ответах GET). EN: Customer code (present in GET responses).
@@ -181,7 +181,7 @@ pub struct PaymentOperation {
     pub ttl: Option<i64>,
 }
 
-#[derive(Serialize, Debug, Deserialize)]
+#[derive(Serialize, Debug, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Order {
     /// Идентификатор платежа
@@ -198,7 +198,7 @@ pub struct Order {
     pub time: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, EnumString, Display)]
+#[derive(Serialize, Deserialize, Debug, EnumString, Display, Clone, Copy)]
 #[serde(rename_all = "camelCase")]
 pub enum OrderType {
     Refund,
@@ -211,7 +211,7 @@ pub enum OrderType {
 pub struct CreatePaymentPayload {
     pub amount: f64,
     pub consumer_id: Option<String>,
-    pub customer_code: String,
+    pub customer_code: Option<String>,
     pub fail_redirect_url: Option<String>,
     pub merchant_id: Option<String>,
     pub payment_link_id: Option<String>,
@@ -224,10 +224,10 @@ pub struct CreatePaymentPayload {
 }
 
 impl CreatePaymentPayload {
-    pub fn new(amount: f64, customer_code: impl Into<String>, purpose: impl Into<String>) -> Self {
+    pub fn new(amount: f64, customer_code: Option<String>, purpose: impl Into<String>) -> Self {
         Self {
             amount,
-            customer_code: customer_code.into(),
+            customer_code: customer_code,
             purpose: purpose.into(),
             consumer_id: None,
             fail_redirect_url: None,
@@ -237,7 +237,7 @@ impl CreatePaymentPayload {
             pre_authorization: None,
             redirect_url: None,
             save_card: None,
-            ttl: None,
+            ttl: Some(10800),
         }
     }
 
@@ -266,8 +266,11 @@ impl CreatePaymentPayload {
         self
     }
 
-    pub fn payment_mode(mut self, mode: PaymentMode) -> Self {
-        self.payment_mode.push(mode);
+    pub fn payment_modes<I>(mut self, modes: I) -> Self
+    where
+        I: IntoIterator<Item = PaymentMode>,
+    {
+        self.payment_mode.extend(modes);
         self
     }
 

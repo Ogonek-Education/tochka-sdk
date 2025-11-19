@@ -21,7 +21,7 @@ pub struct TaxFields {
     pub type_: Option<String>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 pub enum TaxSystemCode {
     Osn,
@@ -32,7 +32,7 @@ pub enum TaxSystemCode {
     Envd,
 }
 
-#[derive(Deserialize, Serialize, EnumString, Display, Debug)]
+#[derive(Deserialize, Serialize, EnumString, Display, Debug, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum VatType {
     None,

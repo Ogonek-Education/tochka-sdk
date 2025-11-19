@@ -11,11 +11,12 @@ pub const SANDBOX_BASE: &str = "https://enter.tochka.com/sandbox/v2/";
 
 /// RU: Окружение, в котором выполняются запросы.  
 /// EN: Endpoint environment selector.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub enum Environment {
     /// RU: Песочница. EN: Sandbox endpoint.
     Sandbox,
     /// RU: Продакшн. EN: Production endpoint.
+    #[default]
     Production,
 }
 
@@ -32,12 +33,14 @@ impl Environment {
 
 /// RU: Основной клиент SDK Tochka.  
 /// EN: Main Tochka SDK client.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Client {
     /// RU: HTTP-клиент reqwest. EN: Underlying reqwest client.
     pub(crate) client: reqwest::Client,
     /// RU: Идентификатор приложения (используется в вебхуках). EN: Application client ID (used in webhooks).
-    pub(crate) client_id: String,
+    pub(crate) client_id: Option<String>,
+    /// RU: Уникальный идентификатор клиента, к которому подключен эквайринг
+    pub customer_code: Option<String>,
     /// RU: Текущая среда (песочница или прод). EN: Current environment.
     env: Environment,
     /// RU: JWT/оAuth токен доступа. EN: Access token (JWT/OAuth).
@@ -45,12 +48,12 @@ pub struct Client {
 }
 
 impl Client {
-    /// RU: Создать клиента для указанного окружения.  
-    /// EN: Create a client configured for the given environment.
-    pub fn new(env: Environment) -> Result<Self, Error> {
+    /// Создать клиента для указанного окружения.  
+    ///
+    /// Деволтит на прод
+    pub fn new(env: Option<Environment>) -> Result<Self, Error> {
         let version = env!("CARGO_PKG_VERSION");
         let token = std::env::var("TOCHKA_TOKEN")?;
-        let client_id = std::env::var("TOCHKA_CLIENT_ID")?;
 
         let client = reqwest::Client::builder()
             .timeout(Duration::from_secs(20))
@@ -63,26 +66,30 @@ impl Client {
 
         Ok(Self {
             client,
-            env,
+            env: env.unwrap_or_default(),
             token: token.into(),
-            client_id,
+            ..Default::default()
         })
     }
 
-    /// RU: Создать клиента и сразу получить customer_code для Business-аккаунта.  
-    /// EN: Create a client and resolve the Business customer_code upfront.
+    /// RU: Получить customer_code для Business-аккаунта.  
     ///
     /// Если задана переменная окружения `CUSTOMER_CODE`, будет использована она. Иначе SDK
     /// выполнит `get_accounts_list`, отфильтрует Business-аккаунты и:
     /// - если найден один — вернёт его;
     /// - если найдено несколько — вернёт ошибку конфигурации и предложит установить `CUSTOMER_CODE`.
-    pub async fn new_with_business_customer_code(
-        env: Environment,
-    ) -> Result<(Self, String), Error> {
-        let client = Self::new(env)?;
-        let customer_code = client.resolve_business_customer_code().await?;
+    pub async fn with_client_code(mut self) -> Result<Self, Error> {
+        self.customer_code = Some(self.resolve_business_customer_code().await?);
 
-        Ok((client, customer_code))
+        Ok(self)
+    }
+
+    /// Добоавить client id в клиент. Нужен для вебхуков
+    pub fn with_client_id(mut self) -> Result<Self, Error> {
+        let client_id = std::env::var("TOCHKA_CLIENT_ID")?;
+        self.client_id = Some(client_id);
+
+        Ok(self)
     }
 }
 

@@ -1,9 +1,9 @@
-use tochka_sdk::{Client, Environment};
+use tochka_sdk::Client;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
-    let client = Client::new(Environment::Production)?;
+    let client = Client::new(None)?;
 
     // Pick account ID either from env or from the first available account.
     let account_id = match std::env::var("ACCOUNT_ID") {

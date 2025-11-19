@@ -1,10 +1,10 @@
 use chrono::{Duration, Utc};
-use tochka_sdk::{Client, Environment, StatementPayload};
+use tochka_sdk::{Client, StatementPayload};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
-    let client = Client::new(Environment::Production)?;
+    let client = Client::new(None)?;
 
     let account_id = std::env::var("ACCOUNT_ID")?;
     let end_date = Utc::now().date_naive();

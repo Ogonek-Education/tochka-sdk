@@ -1,10 +1,10 @@
 use chrono::{NaiveDate, Utc};
-use tochka_sdk::{Client, Environment, PaymentRegistryQuery};
+use tochka_sdk::{Client, PaymentRegistryQuery};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
-    let client = Client::new(Environment::Production)?;
+    let client = Client::new(None)?;
 
     let customer_code = std::env::var("CUSTOMER_CODE")?;
     let merchant_id = std::env::var("MERCHANT_ID")?;

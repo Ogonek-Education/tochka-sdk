@@ -1,10 +1,10 @@
-use tochka_sdk::{Client, Environment};
+use tochka_sdk::Client;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
 
-    let client = Client::new(Environment::Production)?;
+    let client = Client::new(None)?;
 
     let operation_id = std::env::var("OPERATION_ID").unwrap();
 

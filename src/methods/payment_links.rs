@@ -25,6 +25,11 @@ impl Client {
         payload: CreatePaymentPayload,
         path: PaymentPath,
     ) -> Result<Data<PaymentOperation>, Error> {
+        if payload.customer_code.is_none() {
+            return Err(Error::Api(String::from(
+                "Нет customer_code. Используйте resolve_customer_code в вашем коде",
+            )));
+        }
         self.send::<Data<PaymentOperation>>(
             self.client
                 .post(self.url(Service::Acquiring, ApiVersion::V1_0, path.as_str()))

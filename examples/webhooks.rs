@@ -1,9 +1,9 @@
-use tochka_sdk::{Client, Environment, Webhook, WebhookType};
+use tochka_sdk::{Client, Webhook, WebhookType};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
-    let client = Client::new(Environment::Production)?;
+    let client = Client::new(None)?;
 
     let callback_url =
         std::env::var("WEBHOOK_URL").unwrap_or_else(|_| "https://example.com/webhook".into());
