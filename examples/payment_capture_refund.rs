@@ -3,7 +3,7 @@ use tochka_sdk::{Client, RefundPayload};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
-    let client = Client::new(None)?;
+    let client = Client::new().await?;
 
     let operation_id = std::env::var("OPERATION_ID")
         .expect("Set OPERATION_ID with a two-step payment operation id");

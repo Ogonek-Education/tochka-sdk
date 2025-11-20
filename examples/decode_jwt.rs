@@ -1,0 +1,14 @@
+use tochka_sdk::{AcquiringClaims, Client};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = Client::new().await?;
+
+    let token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJjdXN0b21lckNvZGUiOiAiMzAwMTIzMTIzIiwgImFtb3VudCI6ICIwLjMzIiwgInBheW1lbnRUeXBlIjogImNhcmQiLCAib3BlcmF0aW9uSWQiOiAiYmVlYWM4YTQtNjA0Ny0zZjM4LTg5MjItYTY2NGU2YjVjNDNiIiwgInB1cnBvc2UiOiAiXHUwNDFlXHUwNDNmXHUwNDNiXHUwNDMwXHUwNDQyXHUwNDMwIFx1MDQzZlx1MDQzZSBcdTA0NDFcdTA0NDdcdTA0MzVcdTA0NDJcdTA0NDMgXHUyMTE2IDEgXHUwNDNlXHUwNDQyIDAxLjAxLjIwMjEuIFx1MDQxMVx1MDQzNVx1MDQzNyBcdTA0MWRcdTA0MTRcdTA0MjEiLCAid2ViaG9va1R5cGUiOiAiYWNxdWlyaW5nSW50ZXJuZXRQYXltZW50IiwgIm1lcmNoYW50SWQiOiAiMjAwMDAwMDAwMDAxMjM0IiwgImNvbnN1bWVySWQiOiAiOTE3ZWQzODktYTEyMC00MjkxLThlNzMtMzhjNmVmN2Q2NzcwIiwgInN0YXR1cyI6ICJBUFBST1ZFRCJ9.cFFVd_rpmBFSrefGm2jRM7NhahAY2Jhb_7vwQXs952q18SiIGfyJZdFqGh2uicwBNKOnv_Bto0gDoTZcToEfqPXbHCKCYsA7uu8JUR_DHJtxjYuiilXRgkyDfUxNb0jCqWEfMJz6sGM2AA7kKyQ-Ds9fnGipX9GzYBtksO38PWPmIAJmjYSXsnXYM6bqE8cl-EhbbBbHkCg7vDMV2kwiA0AoW7_SniT4LR0H_NosyaVe0WHq9d7pTipW8rxKl69tFebCl8iz2ZulU0qWLVWPifcF1SbnIAw5WMhEbWBJVNuKYMiGrU_YX958iIOTZ0CyajmEwQutnDIJoMpHi1xOc747ba14H1l1rfDVRXiuNOmzbXYnGBuZ6Bzy2vlJ-54PB4ToQt9nthpi65uWB4YUck3yuoFJzntqkVrmp3ZztoyvVPkpR8ub7nzAhDxLWVLdbM7Q4HQACMcnJXRfkkHlGFR9P8Ygji3OATvNcP0wnxqNxp9P629vG5uICke-Ex0I";
+
+    let decoded = client.decode_token::<AcquiringClaims>(token)?;
+
+    println!("Decoded webhook payload:\n{:#?}", decoded.claims);
+
+    Ok(())
+}

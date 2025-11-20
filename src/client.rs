@@ -1,4 +1,4 @@
-use crate::{ApiVersion, Error, Service};
+use crate::{ApiVersion, Error, Jwk, Service, jwt::fetch_jwk};
 use std::time::Duration;
 
 /// RU: Базовый URL продакшн-окружения Tochka API.  
@@ -20,6 +20,22 @@ pub enum Environment {
     Production,
 }
 
+impl From<&str> for Environment {
+    fn from(s: &str) -> Self {
+        match s {
+            "PRODUCTION" => Self::Production,
+            "SANDBOX" => Self::Sandbox,
+            _ => Self::Sandbox,
+        }
+    }
+}
+
+impl From<String> for Environment {
+    fn from(s: String) -> Self {
+        Environment::from(s.as_str())
+    }
+}
+
 impl Environment {
     /// RU: Вернуть базовый URL в зависимости от окружения.  
     /// EN: Return the base URL for the selected environment.
@@ -33,7 +49,7 @@ impl Environment {
 
 /// RU: Основной клиент SDK Tochka.  
 /// EN: Main Tochka SDK client.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct Client {
     /// RU: HTTP-клиент reqwest. EN: Underlying reqwest client.
     pub(crate) client: reqwest::Client,
@@ -43,17 +59,25 @@ pub struct Client {
     pub customer_code: Option<String>,
     /// RU: Текущая среда (песочница или прод). EN: Current environment.
     env: Environment,
+    /// Токен для расшифровки запросов вебхукам
+    pub(crate) jwk: Jwk,
     /// RU: JWT/оAuth токен доступа. EN: Access token (JWT/OAuth).
     token: String,
 }
 
 impl Client {
     /// Создать клиента для указанного окружения.  
-    ///
-    /// Деволтит на прод
-    pub fn new(env: Option<Environment>) -> Result<Self, Error> {
+    pub async fn new() -> Result<Self, Error> {
         let version = env!("CARGO_PKG_VERSION");
-        let token = std::env::var("TOCHKA_TOKEN")?;
+        let env: Environment = std::env::var("TOCHKA_ENV")
+            .unwrap_or(String::from("SANDBOX"))
+            .into();
+        let token = match env {
+            Environment::Production => std::env::var("TOCHKA_TOKEN")?,
+            Environment::Sandbox => "sandbox.jwt.token".to_string(),
+        };
+
+        let jwk = fetch_jwk().await?;
 
         let client = reqwest::Client::builder()
             .timeout(Duration::from_secs(20))
@@ -66,9 +90,11 @@ impl Client {
 
         Ok(Self {
             client,
-            env: env.unwrap_or_default(),
+            env,
             token: token.into(),
-            ..Default::default()
+            jwk,
+            client_id: None,
+            customer_code: None,
         })
     }
 

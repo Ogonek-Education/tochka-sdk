@@ -4,7 +4,7 @@ use tochka_sdk::Client;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
 
-    let client = Client::new(None)?;
+    let client = Client::new().await?;
 
     let operation_id = std::env::var("OPERATION_ID").unwrap();
 

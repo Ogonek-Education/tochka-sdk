@@ -5,7 +5,7 @@ use tochka_sdk::{Client, CreatePaymentPayload, PaymentListQuery, PaymentMode, Pa
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
 
-    let client = Client::new(None)?;
+    let client = Client::new().await?;
 
     // Schritt 1: Zahlung erstellen
     let create = client

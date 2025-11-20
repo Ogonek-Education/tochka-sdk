@@ -3,7 +3,7 @@ use tochka_sdk::{Client, Webhook, WebhookType};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
-    let client = Client::new(None)?;
+    let client = Client::new().await?;
 
     let callback_url =
         std::env::var("WEBHOOK_URL").unwrap_or_else(|_| "https://example.com/webhook".into());

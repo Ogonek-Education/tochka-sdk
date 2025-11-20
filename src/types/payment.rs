@@ -30,7 +30,7 @@ pub enum PaymentMethod {
 }
 
 /// RU: Статус платежной операции. EN: Payment status.
-#[derive(Deserialize, Serialize, Debug, Clone, Copy)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy, PartialEq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum PaymentStatus {
     Created,

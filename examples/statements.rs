@@ -4,7 +4,7 @@ use tochka_sdk::{Client, StatementPayload};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
-    let client = Client::new(None)?;
+    let client = Client::new().await?;
 
     let account_id = std::env::var("ACCOUNT_ID")?;
     let end_date = Utc::now().date_naive();
