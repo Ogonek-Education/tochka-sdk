@@ -1,4 +1,5 @@
 use crate::{Client, Data, Error, ResultBody, Service, Webhook, WebhookType};
+use log::debug;
 
 impl Client {
     /// Метод для создания вебхуков
@@ -9,6 +10,10 @@ impl Client {
             .client_id
             .as_deref()
             .expect("client_id must be set before create_webhook()");
+        debug!(
+            "Creating webhook for client_id {id} with payload: {:?}",
+            payload
+        );
 
         self.send::<Data<Webhook>>(
             self.client
@@ -25,6 +30,10 @@ impl Client {
             .client_id
             .as_deref()
             .expect("client_id must be set before edit_webhook()");
+        debug!(
+            "Editing webhook for client_id {id} with payload: {:?}",
+            payload
+        );
         self.send::<Data<Webhook>>(
             self.client
                 .post(self.url(Service::Webhook, crate::ApiVersion::V1_0, id))
@@ -38,6 +47,7 @@ impl Client {
             .client_id
             .as_deref()
             .expect("client_id must be set before get_webhooks()");
+        debug!("Fetching webhooks for client_id {id}");
         self.send::<Data<Webhook>>(self.client.get(self.url(
             Service::Webhook,
             crate::ApiVersion::V1_0,
@@ -51,6 +61,7 @@ impl Client {
             .client_id
             .as_deref()
             .expect("client_id must be set before delete_webhook()");
+        debug!("Deleting webhook for client_id {id}");
         self.send::<Data<ResultBody>>(self.client.delete(self.url(
             Service::Webhook,
             crate::ApiVersion::V1_0,
@@ -64,6 +75,10 @@ impl Client {
             .client_id
             .as_deref()
             .expect("client_id must be set before send_webhook()");
+        debug!(
+            "Triggering webhook test send for client_id {id} with payload: {:?}",
+            payload
+        );
         self.send::<Data<ResultBody>>(
             self.client
                 .post(self.url(

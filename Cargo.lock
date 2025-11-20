@@ -2590,6 +2590,7 @@ dependencies = [
  "codes-iso-4217",
  "dotenvy",
  "jsonwebtoken",
+ "log",
  "reqwest",
  "serde",
  "serde_json",

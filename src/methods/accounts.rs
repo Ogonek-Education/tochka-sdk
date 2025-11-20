@@ -1,14 +1,14 @@
 use std::collections::HashSet;
 
-use crate::{
-    Account, AccountPageData, ApiVersion, Client, Data, Error, ExternalType, Service,
-};
+use crate::{Account, AccountPageData, ApiVersion, Client, Data, Error, ExternalType, Service};
+use log::debug;
 
 const CUSTOMER_CODE_ENV: &str = "CUSTOMER_CODE";
 
 impl Client {
     /// Метод для получения списка доступных счетов
     pub async fn get_accounts_list(&self) -> Result<Data<AccountPageData>, Error> {
+        debug!("Fetching accounts list");
         self.send(
             self.client
                 .get(self.url(Service::OpenBanking, ApiVersion::V1_0, "accounts")),
@@ -18,6 +18,7 @@ impl Client {
 
     /// Метод для получения информации по конкретному счёту
     pub async fn get_account_into(&self, account_id: &str) -> Result<Data<Account>, Error> {
+        debug!("Fetching account info for {account_id}");
         self.send(self.client.get(self.url(
             Service::OpenBanking,
             ApiVersion::V1_0,
@@ -35,9 +36,11 @@ impl Client {
     ///    с подсказкой установить CUSTOMER_CODE вручную.
     pub async fn resolve_business_customer_code(&self) -> Result<String, Error> {
         if let Ok(code) = std::env::var(CUSTOMER_CODE_ENV) {
+            debug!("Using customer_code from {CUSTOMER_CODE_ENV} env var");
             return Ok(code);
         }
 
+        debug!("CUSTOMER_CODE not set, resolving via Business accounts");
         let accounts = self.get_accounts_list().await?.data.account;
         select_business_customer_code(&accounts)
     }
@@ -50,10 +53,17 @@ fn select_business_customer_code(accounts: &[Account]) -> Result<String, Error> 
         .filter(|acc| acc.account_type == ExternalType::Business)
         .map(|acc| acc.customer_code.clone())
         .collect();
-
+    debug!(
+        "Found {} business accounts before deduplication",
+        business_codes.len()
+    );
     // Стабилизируем порядок, чтобы предсказуемо доставать единственный элемент.
     let mut unique_codes: Vec<String> = business_codes.drain().collect();
     unique_codes.sort();
+    debug!(
+        "Unique business customer codes resolved: {}",
+        unique_codes.len()
+    );
 
     match unique_codes.len() {
         0 => Err(Error::Config(

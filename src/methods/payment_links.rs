@@ -3,12 +3,14 @@ use crate::{
     PaymentListQuery, PaymentOperation, PaymentPageData, PaymentPath, PaymentRegistryQuery, Refund,
     RefundPayload, RegistryPageData, ResultBody, RetailerPageData, Service,
 };
+use log::debug;
 
 impl Client {
     pub async fn payment_operation_list(
         &self,
         query: PaymentListQuery,
     ) -> Result<PaginatedResponse<PaymentPageData>, Error> {
+        debug!("Fetching payment operations list with query: {:?}", query);
         self.send::<PaginatedResponse<PaymentPageData>>(
             self.client
                 .get(self.url(Service::Acquiring, ApiVersion::V1_0, "payments"))
@@ -25,6 +27,11 @@ impl Client {
         payload: CreatePaymentPayload,
         path: PaymentPath,
     ) -> Result<Data<PaymentOperation>, Error> {
+        let path_segment = path.as_str();
+        debug!(
+            "Creating payment operation via {path_segment} with payload: {:?}",
+            payload
+        );
         if payload.customer_code.is_none() {
             return Err(Error::Api(String::from(
                 "Нет customer_code. Используйте resolve_customer_code в вашем коде",
@@ -32,7 +39,7 @@ impl Client {
         }
         self.send::<Data<PaymentOperation>>(
             self.client
-                .post(self.url(Service::Acquiring, ApiVersion::V1_0, path.as_str()))
+                .post(self.url(Service::Acquiring, ApiVersion::V1_0, path_segment))
                 .json(&PayloadWrapper::wrap(payload)),
         )
         .await
@@ -41,16 +48,19 @@ impl Client {
         &self,
         operation_id: impl Into<String>,
     ) -> Result<Data<PaymentPageData>, Error> {
+        let operation_id = operation_id.into();
+        debug!("Fetching payment operation info for {operation_id}");
         self.send::<Data<PaymentPageData>>(self.client.get(self.url(
             Service::Acquiring,
             ApiVersion::V1_0,
-            format!("payments/{0}", operation_id.into()).as_str(),
+            format!("payments/{operation_id}").as_str(),
         )))
         .await
     }
 
     /// Метод для списания средств при двухэтапной оплате
     pub async fn capture_payment(&self, operation_id: &str) -> Result<Data<ResultBody>, Error> {
+        debug!("Capturing payment for operation {operation_id}");
         self.send::<Data<ResultBody>>(self.client.post(self.url(
             Service::Acquiring,
             ApiVersion::V1_0,
@@ -64,12 +74,17 @@ impl Client {
         operation_id: impl Into<String>,
         payload: RefundPayload,
     ) -> Result<Data<Refund>, Error> {
+        let operation_id = operation_id.into();
+        debug!(
+            "Initiating refund for operation {operation_id} with payload: {:?}",
+            payload
+        );
         self.send(
             self.client
                 .post(self.url(
                     Service::Acquiring,
                     ApiVersion::V1_0,
-                    format!("payments/{0}/refund", operation_id.into()).as_str(),
+                    format!("payments/{0}/refund", operation_id).as_str(),
                 ))
                 .json(&PayloadWrapper::wrap(payload)),
         )
@@ -81,6 +96,7 @@ impl Client {
         &self,
         query: PaymentRegistryQuery,
     ) -> Result<Data<RegistryPageData>, Error> {
+        debug!("Fetching payment registry with query: {:?}", query);
         self.send(
             self.client
                 .get(self.url(Service::Acquiring, ApiVersion::V1_0, "registry"))
@@ -103,6 +119,7 @@ impl Client {
         &self,
         customer_code: &str,
     ) -> Result<Data<RetailerPageData>, Error> {
+        debug!("Fetching retailers for customer_code {customer_code}");
         self.send(
             self.client
                 .get(self.url(Service::Acquiring, ApiVersion::V1_0, "retailers"))

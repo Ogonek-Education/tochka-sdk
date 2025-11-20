@@ -1,4 +1,5 @@
 use crate::{Client, Data, Error, PayloadWrapper, Service, StatementPageData, StatementPayload};
+use log::debug;
 
 impl Client {
     /// Метод для получения конкретной выписки
@@ -13,6 +14,7 @@ impl Client {
         accound_id: &str,
         statement_id: &str,
     ) -> Result<Data<StatementPageData>, Error> {
+        debug!("Fetching statement {statement_id} for account {accound_id}");
         self.send::<Data<StatementPageData>>(self.client.get(self.url(
             Service::OpenBanking,
             crate::ApiVersion::V1_0,
@@ -26,6 +28,7 @@ impl Client {
         &self,
         payload: StatementPayload,
     ) -> Result<Data<StatementPageData>, Error> {
+        debug!("Initializing statement with payload: {:?}", payload);
         self.send::<Data<StatementPageData>>(
             self.client
                 .post(self.url(Service::OpenBanking, crate::ApiVersion::V1_0, "statements"))
@@ -43,6 +46,7 @@ impl Client {
     /// **Особенности:**
     /// Отражаются только операции, находящиеся в финальном статусе — *Ready*.
     pub async fn get_statements_list(&self) -> Result<Data<StatementPageData>, Error> {
+        debug!("Fetching statements list");
         self.send::<Data<StatementPageData>>(self.client.get(self.url(
             Service::OpenBanking,
             crate::ApiVersion::V1_0,

@@ -1,5 +1,6 @@
 use crate::{ApiVersion, Error, Jwk, Service, jwt::fetch_jwk};
-use std::time::Duration;
+use log::debug;
+use std::{any::type_name, time::Duration};
 
 /// RU: Базовый URL продакшн-окружения Tochka API.  
 /// EN: Base Tochka API production URL without version suffix.
@@ -69,15 +70,28 @@ impl Client {
     /// Создать клиента для указанного окружения.  
     pub async fn new() -> Result<Self, Error> {
         let version = env!("CARGO_PKG_VERSION");
+        debug!("Initializing Tochka SDK client v{version}");
         let env: Environment = std::env::var("TOCHKA_ENV")
             .unwrap_or(String::from("SANDBOX"))
             .into();
+        debug!(
+            "Environment resolved as {:?}, base URL {}",
+            env,
+            env.base_url()
+        );
         let token = match env {
-            Environment::Production => std::env::var("TOCHKA_TOKEN")?,
-            Environment::Sandbox => "sandbox.jwt.token".to_string(),
+            Environment::Production => {
+                debug!("Using production token from TOCHKA_TOKEN");
+                std::env::var("TOCHKA_TOKEN")?
+            }
+            Environment::Sandbox => {
+                debug!("Using sandbox placeholder token");
+                "sandbox.jwt.token".to_string()
+            }
         };
 
         let jwk = fetch_jwk().await?;
+        debug!("Fetched JWK with kid {:?}", jwk.kid);
 
         let client = reqwest::Client::builder()
             .timeout(Duration::from_secs(20))
@@ -87,6 +101,7 @@ impl Client {
             .pool_max_idle_per_host(20)
             .build()
             .map_err(|e| Error::Config(e.to_string()))?;
+        debug!("Reqwest client constructed with standard timeouts");
 
         Ok(Self {
             client,
@@ -106,6 +121,9 @@ impl Client {
     /// - если найдено несколько — вернёт ошибку конфигурации и предложит установить `CUSTOMER_CODE`.
     pub async fn with_client_code(mut self) -> Result<Self, Error> {
         self.customer_code = Some(self.resolve_business_customer_code().await?);
+        if let Some(code) = &self.customer_code {
+            debug!("Client configured with customer_code {code}");
+        }
 
         Ok(self)
     }
@@ -114,6 +132,7 @@ impl Client {
     pub fn with_client_id(mut self) -> Result<Self, Error> {
         let client_id = std::env::var("TOCHKA_CLIENT_ID")?;
         self.client_id = Some(client_id);
+        debug!("Client configured with client_id for webhook APIs");
 
         Ok(self)
     }
@@ -140,29 +159,66 @@ impl Client {
     where
         T: serde::de::DeserializeOwned,
     {
+        let request_snapshot = req.try_clone().and_then(|builder| builder.build().ok());
+        if let Some(snapshot) = request_snapshot.as_ref() {
+            debug!(
+                "Sending {} request to {}",
+                snapshot.method(),
+                snapshot.url()
+            );
+        } else {
+            debug!("Sending request (unable to snapshot builder)");
+        }
         let resp = req.bearer_auth(&self.token).send().await.map_err(|e| {
             if e.is_timeout() {
+                debug!("Request timed out: {e}");
                 Error::Timeout
             } else {
+                debug!("Network error: {e}");
                 Error::Network(e.without_url().to_string())
             }
         })?;
 
         let status = resp.status();
         let body = resp.text().await.unwrap_or_default(); // always capture raw JSON
+        if let Some(snapshot) = request_snapshot {
+            debug!(
+                "Response for {} {} returned status {}",
+                snapshot.method(),
+                snapshot.url(),
+                status
+            );
+        } else {
+            debug!("Response received with status {}", status);
+        }
+        debug!("Raw response body: {body}");
 
         match status {
-            reqwest::StatusCode::UNAUTHORIZED => return Err(Error::Unauthorized),
-            reqwest::StatusCode::FORBIDDEN => return Err(Error::Forbidden),
-            reqwest::StatusCode::NOT_FOUND => return Err(Error::NotFound),
-            reqwest::StatusCode::TOO_MANY_REQUESTS => return Err(Error::TooManyRequests),
+            reqwest::StatusCode::UNAUTHORIZED => {
+                debug!("API responded with Unauthorized");
+                return Err(Error::Unauthorized);
+            }
+            reqwest::StatusCode::FORBIDDEN => {
+                debug!("API responded with Forbidden");
+                return Err(Error::Forbidden);
+            }
+            reqwest::StatusCode::NOT_FOUND => {
+                debug!("API responded with NotFound");
+                return Err(Error::NotFound);
+            }
+            reqwest::StatusCode::TOO_MANY_REQUESTS => {
+                debug!("API responded with TooManyRequests");
+                return Err(Error::TooManyRequests);
+            }
             code if code.is_server_error() => {
+                debug!("API responded with server error");
                 return Err(Error::Server(body));
             }
             _ => {}
         }
 
         if !status.is_success() {
+            debug!("API responded with non-success status {}", status);
             return Err(Error::Api(body));
         }
 
@@ -170,10 +226,17 @@ impl Client {
         let mut deserializer = serde_json::Deserializer::from_str(&body);
 
         match serde_path_to_error::deserialize::<_, T>(&mut deserializer) {
-            Ok(result) => Ok(result),
+            Ok(result) => {
+                debug!("Deserialization succeeded for {}", type_name::<T>());
+                Ok(result)
+            }
             Err(err) => {
                 let path = err.path().to_string();
                 let inner = err.into_inner();
+                debug!(
+                    "Deserialization error for {} at {path}: {inner}",
+                    type_name::<T>()
+                );
 
                 Err(Error::Deserialize {
                     message: inner.to_string(),
